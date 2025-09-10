@@ -1,10 +1,6 @@
 const express = require('express');
 const authMiddleware = require('../middlewares/auth');
-const User = require('../models/User');
-const Weights = require('../models/Weights');
-const Macros = require('../models/Macros');
-const Hydrations = require('../models/Hydrations');
-const { route } = require('./hydrations');
+const { getDashboardData } = require('../controllers/dashboardController');
 
 const router = express.Router();
 
@@ -40,36 +36,6 @@ const router = express.Router();
  *       500:
  *         description: Server error
  */
-router.get('/', authMiddleware, async (req, res) => {
-  try {
-    const userId = req.user.id || req.user._id;
-
-    // Fetch user profile
-    const user = await User.findById(userId).select('-password');
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
-    }
-
-    // Fetch latest weight entry
-    const latestWeight = await Weights.findOne({ user: userId }).sort({ date: -1 });
-
-    // Fetch latest macros entry
-    const latestMacros = await Macros.findOne({ user: userId }).sort({ date: -1 });
-
-    // Fetch latest hydration entry
-    const latestHydration = await Hydrations.findOne({ user: userId }).sort({ date: -1 });
-
-    res.json({
-      user,
-      latestWeight,
-      latestMacros,
-      latestHydration,
-    });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Server error' });
-    next(error);
-  }
-});
+router.get('/', authMiddleware, getDashboardData);
 
 module.exports = router;
