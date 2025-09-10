@@ -15,3 +15,9 @@ Sviluppato con **Node.js**, **Express** e **MongoDB**, include autenticazione JW
 - Documentazione API con **Swagger**
 - Logging con **Winston**
 - Test automatici con **Jest + Supertest + MongoDB in-memory**
+
+---
+
+## Documentazione API
+
+Le API sono visibili e testabili con **Swagger** tramite questo [link](https://fitmanager-backend.onrender.com/api-docs)
