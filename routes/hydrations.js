@@ -1,14 +1,13 @@
-const express = require('express');
-const authMiddleware = require('../middlewares/auth');
-const { validateHydration } = require('../validators/hydrationValidator');
+const express = require("express");
+const authMiddleware = require("../middlewares/auth");
+const { validateHydration } = require("../validators/hydrationValidator");
 const {
   addHydration,
   getHydrations,
   getHydration,
   updateHydrationEntry,
-  deleteLastHydrationEntry,
   deleteHydrationEntry,
-} = require('../controllers/hydrationsController');
+} = require("../controllers/hydrationsController");
 
 const router = express.Router();
 
@@ -16,12 +15,12 @@ const router = express.Router();
  * @openapi
  * components:
  *   schemas:
- *     Hydrations:
+ *     Hydration:
  *       type: object
  *       properties:
  *         id:
  *           type: string
- *           description: Hydrations entry ID
+ *           description: Hydration entry ID
  *         user:
  *           type: string
  *           description: Reference to the User ID
@@ -39,7 +38,7 @@ const router = express.Router();
  * @openapi
  * /hydrations:
  *   post:
- *     summary: Add a new Hydrations entry
+ *     summary: Add a new hydration entry
  *     tags:
  *       - Hydrations
  *     security:
@@ -63,48 +62,60 @@ const router = express.Router();
  *                 description: Amount of water consumed in ml
  *     responses:
  *       201:
- *         description: Hydrations entry created successfully
+ *         description: Hydration entry created successfully
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/Hydrations'
+ *               $ref: '#/components/schemas/Hydration'
  *       400:
  *         description: Bad request (missing or invalid fields)
  *       401:
  *         description: Unauthorized (missing or invalid token)
  */
-router.post('/', authMiddleware, validateHydration, addHydration);
+router.post("/", authMiddleware, validateHydration, addHydration);
 
 /**
  * @openapi
  * /hydrations:
  *   get:
- *     summary: Get all Hydrations entries for the authenticated user
+ *     summary: Get hydration entries for the authenticated user
  *     tags:
  *       - Hydrations
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: last
+ *         schema:
+ *           type: boolean
+ *         description: If true, return only the last hydration entry
+ *       - in: query
+ *         name: date
+ *         schema:
+ *           type: string
+ *           example: today
+ *         description: Filter by date (use "today" or a specific date in YYYY-MM-DD format)
  *     responses:
  *       200:
- *         description: List of Hydrations entries
+ *         description: List of hydration entries
  *         content:
  *           application/json:
  *             schema:
  *               type: array
  *               items:
- *                 $ref: '#/components/schemas/Hydrations'
+ *                 $ref: '#/components/schemas/Hydration'
  *       401:
  *         description: Unauthorized (missing or invalid token)
  *       500:
  *         description: Server error
  */
-router.get('/', authMiddleware, getHydrations);
+router.get("/", authMiddleware, getHydrations);
 
 /**
  * @openapi
  * /hydrations/{id}:
  *   get:
- *     summary: Get a specific Hydrations entry by ID
+ *     summary: Get a specific hydration entry by ID
  *     tags:
  *       - Hydrations
  *     security:
@@ -115,18 +126,18 @@ router.get('/', authMiddleware, getHydrations);
  *         required: true
  *         schema:
  *           type: string
- *         description: Hydrations entry ID
+ *         description: Hydration entry ID
  *     responses:
  *       200:
- *         description: Hydrations entry retrieved successfully
+ *         description: Hydration entry retrieved successfully
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/Hydrations'
+ *               $ref: '#/components/schemas/Hydration'
  *       401:
  *         description: Unauthorized (missing or invalid token)
  *       404:
- *         description: Hydrations entry not found
+ *         description: Hydration entry not found
  *       500:
  *         description: Server error
  */
@@ -136,7 +147,7 @@ router.get("/:id", authMiddleware, getHydration);
  * @openapi
  * /hydrations/{id}:
  *   put:
- *     summary: Update a Hydrations entry by ID
+ *     summary: Update a hydration entry by ID
  *     tags:
  *       - Hydrations
  *     security:
@@ -147,7 +158,7 @@ router.get("/:id", authMiddleware, getHydration);
  *         required: true
  *         schema:
  *           type: string
- *         description: Hydrations entry ID
+ *         description: Hydration entry ID
  *     requestBody:
  *       required: true
  *       content:
@@ -165,17 +176,17 @@ router.get("/:id", authMiddleware, getHydration);
  *                 description: Amount of water consumed in ml
  *     responses:
  *       200:
- *         description: Hydrations entry updated successfully
+ *         description: Hydration entry updated successfully
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/Hydrations'
+ *               $ref: '#/components/schemas/Hydration'
  *       400:
  *         description: Bad request (missing or invalid fields)
  *       401:
  *         description: Unauthorized (missing or invalid token)
  *       404:
- *         description: Hydrations entry not found
+ *         description: Hydration entry not found
  *       500:
  *         description: Server error
  */
@@ -183,28 +194,9 @@ router.put("/:id", authMiddleware, validateHydration, updateHydrationEntry);
 
 /**
  * @openapi
- * /hydrations:
- *   delete:
- *     summary: Delete last Hydrations entry
- *     tags:
- *       - Hydrations
- *     security:
- *       - bearerAuth: []
- *     responses:
- *       200:
- *         description: Hydrations entry deleted successfully
- *       401:
- *         description: Unauthorized
- *       500:
- *         description: Server error
- */
-router.delete("", authMiddleware, deleteLastHydrationEntry);
-
-/**
- * @openapi
  * /hydrations/{id}:
  *   delete:
- *     summary: Delete a Hydrations entry by ID
+ *     summary: Delete a hydration entry by ID
  *     tags:
  *       - Hydrations
  *     security:
@@ -215,15 +207,17 @@ router.delete("", authMiddleware, deleteLastHydrationEntry);
  *         required: true
  *         schema:
  *           type: string
- *         description: Hydrations entry ID
+ *         description: Hydration entry ID
  *     responses:
  *       200:
- *         description: Hydrations entry deleted successfully
+ *         description: Hydration entry deleted successfully
  *       401:
  *         description: Unauthorized
+ *       404:
+ *         description: Hydration entry not found
  *       500:
  *         description: Server error
  */
-router.delete('/:id', authMiddleware, deleteHydrationEntry);
+router.delete("/:id", authMiddleware, deleteHydrationEntry);
 
 module.exports = router;

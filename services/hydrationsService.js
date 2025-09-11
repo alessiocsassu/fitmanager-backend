@@ -6,12 +6,43 @@ const saveHydration = async (userId, date, amount) => {
   return newEntry;
 };
 
+
 const getAllHydrations = async (userId) => {
   return await Hydrations.find({ user: userId }).sort({ date: -1 });
 };
 
 const getHydrationById = async (id) => {
   return await Hydrations.findById(id);
+};
+
+const getLastHydration = async (userId) => {
+  return await Hydrations.findOne({ user: userId }).sort({ date: -1 });
+};
+
+const getTodayHydrations = async (userId) => {
+  const start = new Date();
+  start.setHours(0, 0, 0, 0);
+
+  const end = new Date();
+  end.setHours(23, 59, 59, 999);
+
+  return await Hydrations.find({
+    user: userId,
+    date: { $gte: start, $lte: end },
+  }).sort({ date: -1 });
+};
+
+const getHydrationsByDate = async (userId, date) => {
+  const start = new Date(date);
+  start.setHours(0, 0, 0, 0);
+
+  const end = new Date(date);
+  end.setHours(23, 59, 59, 999);
+
+  return await Hydrations.find({
+    user: userId,
+    date: { $gte: start, $lte: end },
+  }).sort({ date: -1 });
 };
 
 const updateHydration = async (id, date, amount) => {
@@ -26,18 +57,13 @@ const deleteHydration = async (id) => {
   return await Hydrations.findByIdAndDelete(id);
 };
 
-const deleteLastHydration = async (userId) => {
-  return await Hydrations.findOneAndDelete(
-    { user: userId },
-    { sort: { date: -1 } }
-  );
-};
-
 module.exports = {
   saveHydration,
   getAllHydrations,
   getHydrationById,
+  getLastHydration,
+  getTodayHydrations,
+  getHydrationsByDate,
   updateHydration,
-  deleteLastHydration,
   deleteHydration,
 };

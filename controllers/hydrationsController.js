@@ -2,8 +2,10 @@ const {
   saveHydration,
   getAllHydrations,
   getHydrationById,
+  getLastHydration,
+  getTodayHydrations,
+  getHydrationsByDate,
   updateHydration,
-  deleteLastHydration,
   deleteHydration,
 } = require("../services/hydrationsService");
 
@@ -21,6 +23,23 @@ const addHydration = async (req, res, next) => {
 const getHydrations = async (req, res, next) => {
   try {
     const userId = req.user.id || req.user._id;
+    const { last, date } = req.query;
+
+    if (last === "true") {
+      const entry = await getLastHydration(userId);
+      return res.json(entry ? [entry] : []);
+    }
+
+    if (date === "today") {
+      const entries = await getTodayHydrations(userId);
+      return res.json(entries);
+    }
+
+    if (date) {
+      const entries = await getHydrationsByDate(userId, date);
+      return res.json(entries);
+    }
+
     const entries = await getAllHydrations(userId);
     res.json(entries);
   } catch (error) {
@@ -55,19 +74,6 @@ const updateHydrationEntry = async (req, res, next) => {
   }
 };
 
-const deleteLastHydrationEntry = async (req, res, next) => {
-  try {
-    const userId = req.user.id || req.user._id;
-    const deletedEntry = await deleteLastHydration(userId);
-    if (!deletedEntry) {
-      return res.status(404).json({ message: "Entry not found" });
-    }
-    res.json({ message: "Entry deleted" });
-  } catch (error) {
-    next(error);
-  }
-};
-
 const deleteHydrationEntry = async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -75,7 +81,7 @@ const deleteHydrationEntry = async (req, res, next) => {
     if (!deletedEntry) {
       return res.status(404).json({ message: "Entry not found" });
     }
-    res.json({ message: "Entry deleted" });
+    res.json({ message: "Entry deleted", entry: deletedEntry });
   } catch (error) {
     next(error);
   }
@@ -86,6 +92,5 @@ module.exports = {
   getHydrations,
   getHydration,
   updateHydrationEntry,
-  deleteLastHydrationEntry,
   deleteHydrationEntry,
 };
