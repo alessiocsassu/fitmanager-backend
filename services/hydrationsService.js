@@ -26,10 +26,18 @@ const deleteHydration = async (id) => {
   return await Hydrations.findByIdAndDelete(id);
 };
 
+const deleteLastHydration = async (userId) => {
+  return await Hydrations.findOneAndDelete(
+    { user: userId },
+    { sort: { date: -1 } }
+  );
+};
+
 module.exports = {
   saveHydration,
   getAllHydrations,
   getHydrationById,
   updateHydration,
+  deleteLastHydration,
   deleteHydration,
 };

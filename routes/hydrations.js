@@ -6,6 +6,7 @@ const {
   getHydrations,
   getHydration,
   updateHydrationEntry,
+  deleteLastHydrationEntry,
   deleteHydrationEntry,
 } = require('../controllers/hydrationsController');
 
@@ -179,6 +180,25 @@ router.get("/:id", authMiddleware, getHydration);
  *         description: Server error
  */
 router.put("/:id", authMiddleware, validateHydration, updateHydrationEntry);
+
+/**
+ * @openapi
+ * /hydrations:
+ *   delete:
+ *     summary: Delete last Hydrations entry
+ *     tags:
+ *       - Hydrations
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Hydrations entry deleted successfully
+ *       401:
+ *         description: Unauthorized
+ *       500:
+ *         description: Server error
+ */
+router.delete("", authMiddleware, deleteLastHydrationEntry);
 
 /**
  * @openapi

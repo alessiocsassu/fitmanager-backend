@@ -3,6 +3,7 @@ const {
   getAllHydrations,
   getHydrationById,
   updateHydration,
+  deleteLastHydration,
   deleteHydration,
 } = require("../services/hydrationsService");
 
@@ -54,6 +55,19 @@ const updateHydrationEntry = async (req, res, next) => {
   }
 };
 
+const deleteLastHydrationEntry = async (req, res, next) => {
+  try {
+    const userId = req.user.id || req.user._id;
+    const deletedEntry = await deleteLastHydration(userId);
+    if (!deletedEntry) {
+      return res.status(404).json({ message: "Entry not found" });
+    }
+    res.json({ message: "Entry deleted" });
+  } catch (error) {
+    next(error);
+  }
+};
+
 const deleteHydrationEntry = async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -72,5 +86,6 @@ module.exports = {
   getHydrations,
   getHydration,
   updateHydrationEntry,
+  deleteLastHydrationEntry,
   deleteHydrationEntry,
 };
