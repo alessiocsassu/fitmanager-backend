@@ -2,7 +2,7 @@ const express = require('express');
 const authMiddleware = require('../middlewares/auth');
 const { validateMacros } = require('../validators/macrosValidator');
 const {
-  createMacro,
+  addMacro,
   getMacros,
   getMacro,
   updateMacroEntry,
@@ -90,7 +90,7 @@ const router = express.Router();
  *       500:
  *         description: Server error
  */
-router.post('/', authMiddleware, validateMacros, createMacro);
+router.post("/", authMiddleware, validateMacros, addMacro);
 
 /**
  * @openapi
@@ -101,6 +101,18 @@ router.post('/', authMiddleware, validateMacros, createMacro);
  *       - Macros
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: last
+ *         schema:
+ *           type: boolean
+ *         description: If true, return only the last macros entry
+ *       - in: query
+ *         name: date
+ *         schema:
+ *           type: string
+ *           example: today
+ *         description: Filter by date (use "today" or a specific date in YYYY-MM-DD format)
  *     responses:
  *       200:
  *         description: List of macros entries
@@ -115,7 +127,7 @@ router.post('/', authMiddleware, validateMacros, createMacro);
  *       500:
  *         description: Server error
  */
-router.get('/', authMiddleware, getMacros);
+router.get("/", authMiddleware, getMacros);
 
 /**
  * @openapi
@@ -145,7 +157,7 @@ router.get('/', authMiddleware, getMacros);
  *       500:
  *         description: Server error
  */
-router.get('/:id', authMiddleware, getMacro);
+router.get("/:id", authMiddleware, getMacro);
 
 /**
  * @openapi
@@ -198,7 +210,7 @@ router.get('/:id', authMiddleware, getMacro);
  *       500:
  *         description: Server error
  */
-router.put('/:id', authMiddleware, validateMacros, updateMacroEntry);
+router.put("/:id", authMiddleware, validateMacros, updateMacroEntry);
 
 /**
  * @openapi
@@ -228,6 +240,6 @@ router.put('/:id', authMiddleware, validateMacros, updateMacroEntry);
  *                   type: string
  *                   example: Macros entry deleted successfully
  */
-router.delete('/:id', authMiddleware, deleteMacroEntry);
+router.delete("/:id", authMiddleware, deleteMacroEntry);
 
 module.exports = router;

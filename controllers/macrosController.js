@@ -1,74 +1,94 @@
-const { 
+const {
   saveMacro,
   getAllMacros,
   getMacroById,
+  getLastMacro,
+  getTodayMacros,
+  getMacrosByDate,
   updateMacro,
   deleteMacro,
-} = require('../services/macrosService');
+} = require("../services/macrosService");
 
-const createMacro = async (req, res) => {
+const addMacro = async (req, res, next) => {
   try {
     const { date, carbs, protein, fats } = req.body;
     const userId = req.user.id || req.user._id;
-    const newMacro = await saveMacro(userId, date, carbs, protein, fats);
-    res.status(201).json(newMacro);
+    const newEntry = await saveMacro(userId, date, carbs, protein, fats);
+    res.status(201).json(newEntry);
   } catch (error) {
-    res.status(500).json({ error: 'Failed to create macro entry' });
+    next(error);
   }
 };
 
-const getMacros = async (req, res) => {
+const getMacros = async (req, res, next) => {
   try {
     const userId = req.user.id || req.user._id;
-    const macros = await getAllMacros(userId);
-    res.status(200).json(macros);
+    const { last, date } = req.query;
+
+    if (last === "true") {
+      const entry = await getLastMacro(userId);
+      return res.json(entry ? [entry] : []);
+    }
+
+    if (date === "today") {
+      const entries = await getTodayMacros(userId);
+      return res.json(entries);
+    }
+
+    if (date) {
+      const entries = await getMacrosByDate(userId, date);
+      return res.json(entries);
+    }
+
+    const entries = await getAllMacros(userId);
+    res.json(entries);
   } catch (error) {
-    res.status(500).json({ error: 'Failed to retrieve macro entries' });
+    next(error);
   }
 };
 
-const getMacro = async (req, res) => {
+const getMacro = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const macro = await getMacroById(id);
-    if (!macro) {
-      return res.status(404).json({ error: 'Macro entry not found' });
+    const entry = await getMacroById(id);
+    if (!entry) {
+      return res.status(404).json({ message: "Entry not found" });
     }
-    res.status(200).json(macro);
+    res.json(entry);
   } catch (error) {
-    res.status(500).json({ error: 'Failed to retrieve macro entry' });
+    next(error);
   }
 };
 
-const updateMacroEntry = async (req, res) => {
+const updateMacroEntry = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const { date, carbs, protein, fats } = req.body;
-    const updatedMacro = await updateMacro(id, date, carbs, protein, fats);
-    if (!updatedMacro) {
-      return res.status(404).json({ error: 'Macro entry not found' });
+    const { date, amount } = req.body;
+    const updatedEntry = await updateMacro(id, date, amount);
+    if (!updatedEntry) {
+      return res.status(404).json({ message: "Entry not found" });
     }
-    res.status(200).json(updatedMacro);
+    res.json(updatedEntry);
   } catch (error) {
-    res.status(500).json({ error: 'Failed to update macro entry' });
+    next(error);
   }
 };
 
-const deleteMacroEntry = async (req, res) => {
+const deleteMacroEntry = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const deletedMacro = await deleteMacro(id);
-    if (!deletedMacro) {
-      return res.status(404).json({ error: 'Macro entry not found' });
+    const deletedEntry = await deleteMacro(id);
+    if (!deletedEntry) {
+      return res.status(404).json({ message: "Entry not found" });
     }
-    res.status(200).json({ message: 'Macro entry deleted successfully' });
+    res.json({ message: "Entry deleted", entry: deletedEntry });
   } catch (error) {
-    res.status(500).json({ error: 'Failed to delete macro entry' });
+    next(error);
   }
 };
 
 module.exports = {
-  createMacro,
+  addMacro,
   getMacros,
   getMacro,
   updateMacroEntry,
