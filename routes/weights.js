@@ -7,6 +7,7 @@ const {
   getWeight,
   updateWeightEntry,
   deleteWeightEntry,
+  deleteLastWeightEntry,
 } = require("../controllers/weightsController");
 
 const router = express.Router();
@@ -15,7 +16,7 @@ const router = express.Router();
  * @openapi
  * components:
  *   schemas:
- *     Weights:
+ *     Weight:
  *       type: object
  *       properties:
  *         id:
@@ -64,7 +65,7 @@ const router = express.Router();
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/Weights'
+ *               $ref: '#/components/schemas/Weight'
  *       401:
  *         description: Unauthorized
  *       500:
@@ -76,20 +77,26 @@ router.post("/", authMiddleware, validateWeight, addWeight);
  * @openapi
  * /weights:
  *   get:
- *     summary: Get all weight entries for the logged-in user
+ *     summary: Get weight entries for the logged-in user
  *     tags:
  *       - Weights
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: last
+ *         schema:
+ *           type: boolean
+ *         description: If true, return only the last weight entry
  *     responses:
  *       200:
- *         description: List of weight entries
+ *         description: List of weight entries (or last entry if last=true)
  *         content:
  *           application/json:
  *             schema:
  *               type: array
  *               items:
- *                 $ref: '#/components/schemas/Weights'
+ *                 $ref: '#/components/schemas/Weight'
  *       401:
  *         description: Unauthorized
  *       500:
@@ -119,9 +126,11 @@ router.get("/", authMiddleware, getWeights);
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/Weights'
+ *               $ref: '#/components/schemas/Weight'
  *       401:
  *         description: Unauthorized
+ *       404:
+ *         description: Weight entry not found
  *       500:
  *         description: Server error
  */
@@ -163,11 +172,9 @@ router.get("/:id", authMiddleware, getWeight);
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/Weights'
+ *               $ref: '#/components/schemas/Weight'
  *       401:
  *         description: Unauthorized
- *       403:
- *         description: Forbidden (trying to update another user's entry)
  *       404:
  *         description: Weight entry not found
  *       500:
@@ -196,8 +203,6 @@ router.put("/:id", authMiddleware, validateWeight, updateWeightEntry);
  *         description: Weight entry deleted successfully
  *       401:
  *         description: Unauthorized
- *       403:
- *         description: Forbidden (trying to delete another user's entry)
  *       404:
  *         description: Weight entry not found
  *       500:

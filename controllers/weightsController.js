@@ -2,6 +2,7 @@ const {
   saveWeight,
   getAllWeights,
   getWeightById,
+  getLastWeight,
   updateWeight,
   deleteWeight,
 } = require('../services/weightsService');
@@ -20,6 +21,13 @@ const addWeight = async (req, res, next) => {
 const getWeights = async (req, res, next) => {
   try {
     const userId = req.user.id || req.user._id;
+    const { last } = req.query;
+
+    if (last === "true") {
+      const entry = await getLastWeight(userId);
+      return res.json(entry ? [entry] : []);
+    }
+
     const entries = await getAllWeights(userId);
     res.json(entries);
   } catch (error) {
@@ -67,10 +75,25 @@ const deleteWeightEntry = async (req, res, next) => {
   }
 };
 
+const deleteLastWeightEntry = async (req, res, next) => {
+  try {
+    const userId = req.user.id || req.user._id;
+    const last = await getLastWeight(userId);
+    if (!last) {
+      return res.status(404).json({ message: 'Entry not found' });
+    }
+    await deleteWeight(last._id);
+    res.json({ message: 'Entry deleted' });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   addWeight,
   getWeights,
   getWeight,
   updateWeightEntry,
   deleteWeightEntry,
+  deleteLastWeightEntry,
 };
