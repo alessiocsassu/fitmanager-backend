@@ -1,6 +1,6 @@
 const { getUserById } = require("../services/userService");
 const { getAllWeights } = require("../services/weightsService");
-const { getAllMacros } = require("../services/macrosService");
+const { getTodayMacros } = require("../services/macrosService");
 const { getTodayHydrations } = require("../services/hydrationsService");
 
 const getDashboardData = async (req, res, next) => {
@@ -18,8 +18,16 @@ const getDashboardData = async (req, res, next) => {
     const latestWeight = weights.length > 0 ? weights[0] : null;
 
     // Fetch latest macro entry
-    const macros = await getAllMacros(userId);
-    const latestMacros = macros.length > 0 ? macros[0] : null;
+    const todayMacrosList = await getTodayMacros(userId);
+    const totalTodayMacros = todayMacrosList.reduce(
+      (acc, macro) => {
+        acc.protein += macro.protein || 0;
+        acc.carbs += macro.carbs || 0;
+        acc.fats += macro.fats || 0;
+        return acc;
+      },
+      { protein: 0, carbs: 0, fats: 0 }
+    );
 
     // Fetch latest hydration entry
     const todayHydration = await getTodayHydrations(userId);
@@ -27,7 +35,7 @@ const getDashboardData = async (req, res, next) => {
     res.json({
       user,
       latestWeight,
-      latestMacros,
+      latestMacros: totalTodayMacros,
       todayHydrationTotal: todayHydration.reduce((sum, h) => sum + h.amount, 0),
     });
   } catch (error) {

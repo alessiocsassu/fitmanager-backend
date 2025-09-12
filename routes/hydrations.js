@@ -15,7 +15,7 @@ const router = express.Router();
  * @openapi
  * components:
  *   schemas:
- *     Hydration:
+ *     Hydrations:
  *       type: object
  *       properties:
  *         id:
@@ -66,7 +66,7 @@ const router = express.Router();
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/Hydration'
+ *               $ref: '#/components/schemas/Hydrations'
  *       400:
  *         description: Bad request (missing or invalid fields)
  *       401:
@@ -103,7 +103,7 @@ router.post("/", authMiddleware, validateHydration, addHydration);
  *             schema:
  *               type: array
  *               items:
- *                 $ref: '#/components/schemas/Hydration'
+ *                 $ref: '#/components/schemas/Hydrations'
  *       401:
  *         description: Unauthorized (missing or invalid token)
  *       500:
@@ -133,7 +133,7 @@ router.get("/", authMiddleware, getHydrations);
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/Hydration'
+ *               $ref: '#/components/schemas/Hydrations'
  *       401:
  *         description: Unauthorized (missing or invalid token)
  *       404:
@@ -180,7 +180,7 @@ router.get("/:id", authMiddleware, getHydration);
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/Hydration'
+ *               $ref: '#/components/schemas/Hydrations'
  *       400:
  *         description: Bad request (missing or invalid fields)
  *       401:

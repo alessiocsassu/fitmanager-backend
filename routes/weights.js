@@ -16,7 +16,7 @@ const router = express.Router();
  * @openapi
  * components:
  *   schemas:
- *     Weight:
+ *     Weights:
  *       type: object
  *       properties:
  *         id:

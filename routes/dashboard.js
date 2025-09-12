@@ -26,7 +26,17 @@ const router = express.Router();
  *                 latestWeight:
  *                   $ref: '#/components/schemas/Weights'
  *                 latestMacros:
- *                   $ref: '#/components/schemas/Macros'
+ *                   type: object
+ *                   properties:
+ *                     protein:
+ *                       type: number
+ *                       example: 45
+ *                     carbs:
+ *                       type: number
+ *                       example: 120
+ *                     fats:
+ *                       type: number
+ *                       example: 30
  *                 latestHydration:
  *                   $ref: '#/components/schemas/Hydrations'
  *       401:
