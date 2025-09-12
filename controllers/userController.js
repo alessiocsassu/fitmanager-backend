@@ -1,10 +1,11 @@
 const {
   getUserById,
+  getUserByUsername,
   updateUser,
   deleteUser,
 } = require('../services/userService');
 
-const getUser = async (req, res) => {
+const getUser = async (req, res, next) => {
   try {
     const userId = req.user.id || req.user._id;
     const user = await getUserById(userId);
@@ -13,12 +14,13 @@ const getUser = async (req, res) => {
     }
     res.json(user);
   } catch (error) {
+    console.error("Error fetching user:", error);
     res.status(500).json({ message: 'Server error' });
     next(error);
   }
 };
 
-const updateUserProfile = async (req, res) => {
+const updateUserProfile = async (req, res, next) => {
   try {
     const userId = req.user.id || req.user._id;
     const {
@@ -28,25 +30,24 @@ const updateUserProfile = async (req, res) => {
       height,
       initialWeight,
       targetWeight,
-      activityLevel
+      workoutsPerWeek,
     } = req.body;
 
     if (username) {
-      const existing = await getUserById(username);
+      const existing = await getUserByUsername(username);
       if (existing && existing._id.toString() !== userId) {
         return res.status(400).json({ message: 'Username already taken' });
       }
     }
 
-    const updatedData = {
-      username,
-      dateOfBirth,
-      sex,
-      height,
-      initialWeight,
-      targetWeight,
-      activityLevel
-    };
+    const updatedData = {};
+    if (username !== undefined) updatedData.username = username;
+    if (dateOfBirth !== undefined && dateOfBirth !== "") updatedData.dateOfBirth = dateOfBirth;
+    if (sex !== undefined) updatedData.sex = sex;
+    if (height !== undefined) updatedData.height = height;
+    if (initialWeight !== undefined) updatedData.initialWeight = initialWeight;
+    if (targetWeight !== undefined) updatedData.targetWeight = targetWeight;
+    if (workoutsPerWeek !== undefined) updatedData.workoutsPerWeek = workoutsPerWeek;
 
     const updatedUser = await updateUser(userId, updatedData);
     if (!updatedUser) {
@@ -54,12 +55,13 @@ const updateUserProfile = async (req, res) => {
     }
     res.json(updatedUser);
   } catch (error) {
-    res.status(500).json({ message: 'Server error' });
+    console.error("Error updating user:", error);
+    res.status(500).json({ message: 'Server error', error: error.message });
     next(error);
   }
 };
 
-const deleteUserAccount = async (req, res) => {
+const deleteUserAccount = async (req, res, next) => {
   try {
     const userId = req.user.id || req.user._id;
     const deletedUser = await deleteUser(userId);
@@ -68,6 +70,7 @@ const deleteUserAccount = async (req, res) => {
     }
     res.json({ message: 'User account deleted successfully' });
   } catch (error) {
+    console.error("Error deleting user:", error);
     res.status(500).json({ message: 'Server error' });
     next(error);
   }

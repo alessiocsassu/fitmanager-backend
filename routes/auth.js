@@ -1,6 +1,6 @@
 const express = require("express");
 const { validateRegister, validateLogin } = require("../validators/userValidator");
-const { register, login } = require("../controllers/authController");
+const { register, login, verifyCredentials } = require("../controllers/authController");
 
 const router = express.Router();
 
@@ -89,11 +89,55 @@ router.post("/register", validateRegister, register);
  *                 token:
  *                   type: string
  *                   description: JWT token
- *       400:
+ *       401:
  *         description: Invalid credentials
  *       500:
  *         description: Server error
  */
 router.post("/login", validateLogin, login);
+
+/**
+ * @openapi
+ * /auth/verify:
+ *   post:
+ *     summary: Verify actions from user with username and password
+ *     tags:
+ *       - Auth
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - username
+ *               - password
+ *             properties:
+ *               username:
+ *                 type: string
+ *                 example: johndoe
+ *               password:
+ *                 type: string
+ *                 example: Password123
+ *     responses:
+ *       200:
+ *         description: User verified
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Verified
+ *                 verified:
+ *                   type: boolean
+ *                   description: boolean field for verification
+ *       401:
+ *         description: Invalid credentials
+ *       500:
+ *         description: Server error
+ */
+router.post("/verify", validateLogin, verifyCredentials);
 
 module.exports = router;

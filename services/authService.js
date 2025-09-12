@@ -25,14 +25,14 @@ const loginUser = async ({ username, password }) => {
   const user = await User.findOne({ username });
   if (!user) {
     const error = new Error("Invalid credentials");
-    error.status = 400;
+    error.status = 401;
     throw error;
   }
 
   const valid = await bcrypt.compare(password, user.password);
   if (!valid) {
     const error = new Error("Invalid credentials");
-    error.status = 400;
+    error.status = 401;
     throw error;
   }
 
@@ -43,7 +43,26 @@ const loginUser = async ({ username, password }) => {
   return { message: "User logged in", token };
 };
 
+const verifyUser = async ({ username, password }) => {
+  const user = await User.findOne({ username });
+  if (!user) {
+    const error = new Error("Invalid credentials");
+    error.status = 401;
+    throw error;
+  }
+
+  const valid = await bcrypt.compare(password, user.password);
+  if (!valid) {
+    const error = new Error("Invalid credentials");
+    error.status = 401;
+    throw error;
+  }
+
+  return true;
+};
+
 module.exports = {
   registerUser,
   loginUser,
+  verifyUser,
 };
