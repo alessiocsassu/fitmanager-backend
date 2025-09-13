@@ -22,4 +22,35 @@ describe("Auth API", () => {
 
     expect(res.statusCode).toBe(400);
   });
+
+  it("should login an existing user", async () => {
+    await request(app).post("/auth/register").send({
+      username: "testuser",
+      email: "test@example.com",
+      password: "password123",
+    });
+
+    const res = await request(app).post("/auth/login").send({
+      username: "testuser",
+      password: "password123"
+    });
+
+    expect(res.body).toHaveProperty("token");
+  });
+
+  it("should verify credentials of an existing user", async () => {
+    await request(app).post("/auth/register").send({
+      username: "testuser",
+      email: "test@example.com",
+      password: "password123",
+    });
+
+    const res = await request(app).post("/auth/verify").send({
+      username: "testuser",
+      password: "password123"
+    });
+
+    expect(res.body).toHaveProperty("verified");
+    expect(res.body.verified).toBe(true);
+  });
 });
